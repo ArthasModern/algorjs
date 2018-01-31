@@ -1,0 +1,19 @@
+{
+  "name": "algorjs",
+  "version": "1.0.0",
+  "description": "Algorithm library implemented with JavaScript",
+  "main": "demo.js",
+  "scripts": {
+    "test": "node demo.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArthasModern/algorjs.git"
+  },
+  "author": "ArthasModern",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArthasModern/algorjs/issues"
+  },
+  "homepage": "https://github.com/ArthasModern/algorjs#readme"
+}
