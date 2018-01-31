@@ -1,5 +1,5 @@
 /****************************************************************
- * 三种最为实用的排序算法
+ * 三种最为通用的排序算法
  * 1）归并排序
  * 2）堆排序
  * 3）快速排序
@@ -13,41 +13,57 @@
  *******************************
  * @method mergeSort
  * @param {Array} arr
- * @param {Number} p - begin index
- * @param {Number} r - end index
+ * @param {Function} compFunc - compare function
+ *    sample:
+ *        function compFunc(a, b) {
+ *            if (a > b) { return 1; }
+ *            else if (a < b) { return -1 };
+ *            return 0;
+ *        }
  * @return sorted Array
  ****************************************************************/
-function mergeSort(arr, p, r) {
-    // 补全index
-    if (p === undefined) { p = 0; }
-    if (r === undefined) { r = arr.length - 1; }
-    // 归并
-    function merge(arr, p, q, r) {
-        let larr = arr.slice(p, q);
-        let rarr = arr.slice(q, r + 1);
-
-        larr.push(Number.POSITIVE_INFINITY);
-        rarr.push(Number.POSITIVE_INFINITY);
-
-        for (let i = 0, j = 0, k = p; k <= r; ++k) {
-            if (larr[i] <= rarr[j]) {
-                arr[k] = larr[i];
-                ++i;
-            } else {
-                arr[k] = rarr[j];
-                ++j;
-            }
+function mergeSort(arr, compFunc) {
+    // 补全
+    let p = 0;
+    let r = arr.length - 1;
+    if (compFunc === undefined) {
+        compFunc = (a, b) => {
+            if (a > b) { return 1; }
+            else if (a < b) { return -1; }
+            else { return 0; }
         }
     }
-    // 递归
-    if (p < r) {
-        let q = parseInt((p + r) / 2) + 1;
-        mergeSort(arr, p, q - 1);
-        mergeSort(arr, q, r);
-        merge(arr, p, q, r);
+    // Inner
+    function mergeSortInner(arr, p, r) {
+        // 归并
+        function merge(arr, p, q, r) {
+            let larr = arr.slice(p, q);
+            let rarr = arr.slice(q, r + 1);
+            let llen = larr.length;
+            let rlen = rarr.length;
+            for (let i = 0, j = 0, k = p; k <= r; ++k) {
+                if (j >= rlen ||
+                    (i < llen && compFunc(larr[i], rarr[j]) <= 0)) {
+                    arr[k] = larr[i];
+                    ++i;
+                } else {
+                    arr[k] = rarr[j];
+                    ++j;
+                }
+            }
+        }
+        // 递归
+        if (p < r) {
+            let q = parseInt((p + r) / 2) + 1;
+            mergeSortInner(arr, p, q - 1);
+            mergeSortInner(arr, q, r);
+            merge(arr, p, q, r);
+        }
+
+        return arr;
     }
 
-    return arr;
+    return mergeSortInner(arr, p, r);
 }
 
 /****************************************************************
@@ -57,9 +73,24 @@ function mergeSort(arr, p, r) {
  *******************************
  * @method heapSort
  * @param {Array} arr
+ * @param {Function} compFunc - compare function
+ *    sample:
+ *        function compFunc(a, b) {
+ *            if (a > b) { return 1; }
+ *            else if (a < b) { return -1 };
+ *            return 0;
+ *        }
  * @return sorted Array
  ****************************************************************/
-function heapSort(arr) {
+function heapSort(arr, compFunc) {
+    // 补全
+    if (compFunc === undefined) {
+        compFunc = (a, b) => {
+            if (a > b) { return 1; }
+            else if (a < b) { return -1; }
+            else { return 0; }
+        }
+    }
     // 保序
     function keepMaxHeap(arr, i) {
         function parentIdx(i) {
@@ -75,10 +106,10 @@ function heapSort(arr) {
         let l = leftIdx(i);
         let r = rightIdx(i);
         let maxIdx = i;
-        if (l < arr.heapSize && arr[l] > arr[i]) {
+        if (l < arr.heapSize && compFunc(arr[l], arr[maxIdx]) > 0) {
             maxIdx = l;
         }
-        if (r < arr.heapSize && arr[r] > arr[maxIdx]) {
+        if (r < arr.heapSize && compFunc(arr[r], arr[maxIdx]) > 0) {
             maxIdx = r;
         }
         // 交换最大值到父节点
@@ -121,43 +152,60 @@ function heapSort(arr) {
  *******************************
  * @method quickSort
  * @param {Array} arr
- * @param {Number} p - begin index
- * @param {Number} r - end index
+ * @param {Function} compFunc - compare function
+ *    sample:
+ *        function compFunc(a, b) {
+ *            if (a > b) { return 1; }
+ *            else if (a < b) { return -1 };
+ *            return 0;
+ *        }
  * @return sorted Array
  ****************************************************************/
-function quickSort(arr, p, r) {
-    // 补全index
-    if (p === undefined) { p = 0 }
-    if (r === undefined) { r = arr.length - 1 }
-    // 按与arr[r]比较进行分列
-    function partition(arr, p, r) {
-        let i = p - 1;
-        for (let j = p; j < r; ++j) {
-            // 将小于arr[r]的元素交换到i后面的位置
-            if (arr[j] < arr[r]) {
-                ++i;
-                let temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
-            }
+function quickSort(arr, compFunc) {
+    // 补全
+    let p = 0;
+    let r = arr.length - 1;
+    if (compFunc === undefined) {
+        compFunc = (a, b) => {
+            if (a > b) { return 1; }
+            else if (a < b) { return -1; }
+            else { return 0; }
         }
-        // 将arr[r]元素交换到i后的位置
-        ++i;
-        let temp = arr[r];
-        arr[r] = arr[i];
-        arr[i] = temp;
-        return i;
+    }
+    // Inner
+    function quickSortInner(arr, p, r) {
+        // 按与arr[r]比较进行分列
+        function partition(arr, p, r) {
+            let i = p - 1;
+            for (let j = p; j < r; ++j) {
+                // 将小于arr[r]的元素交换到i后面的位置
+                if (compFunc(arr[j], arr[r]) < 0) {
+                    ++i;
+                    let temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+            // 将arr[r]元素交换到i后的位置
+            ++i;
+            let temp = arr[r];
+            arr[r] = arr[i];
+            arr[i] = temp;
+            return i;
+        }
+
+        if (p < r) {
+            // 分列
+            let q = partition(arr, p, r);
+            // 再分别对左右两组元素递归快排
+            quickSortInner(arr, p, q - 1);
+            quickSortInner(arr, q + 1, r);
+        }
+
+        return arr;
     }
 
-    if (p < r) {
-        // 分列
-        let q = partition(arr, p, r);
-        // 再分别对左右两组元素递归快排
-        quickSort(arr, p, q - 1);
-        quickSort(arr, q + 1, r);
-    }
-
-    return arr;
+    return quickSortInner(arr, p, r);
 }
 
 /****************************************************************/
