@@ -30,6 +30,6 @@ const man3 = { age: 32 };
 const man4 = { age: 45 };
 const man5 = { age: 60 };
 
-console.log(Sort.mergeSort([man0, man1, man2, man3, man4, man5], oldCompFunc));
-console.log(Sort.heapSort([man0, man1, man2, man3, man4, man5], oldCompFunc));
-console.log(Sort.quickSort([man0, man1, man2, man3, man4, man5], oldCompFunc));
+console.log(Sort.mergeSort([man3, man0, man5, man2, man1, man4], oldCompFunc));
+console.log(Sort.heapSort([man3, man0, man5, man2, man1, man4], oldCompFunc));
+console.log(Sort.quickSort([man3, man0, man5, man2, man1, man4], oldCompFunc));
